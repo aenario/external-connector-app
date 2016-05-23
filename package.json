@@ -1,0 +1,16 @@
+{
+    "name": "cozy-external-connector",
+    "cozy-type": "static",
+    "cozy-displayName": "External Cozy Connector",
+    "version": "1.0.0",
+    "description": "External Cozy connector",
+    "icon-path": "icon.svg",
+    "cozy-permissions": {
+        "Doctype1": {
+            "description": "Store your doctype1 in your cozy."
+        },
+        "Doctype2": {
+            "description": "Store your doctype2 in your cozy."
+        }
+    }
+}

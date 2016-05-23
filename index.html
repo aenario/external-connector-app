@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>External Cozy connector</title>
+</head>
+<body>
+    <p>This application allows another app to store data in the cozy for your own docType.<p>
+    <p>Your access token is <input id="tokenContainer" placeholder="Loading" readonly="true" size="100"/></p>
+    <p> You can <ol>
+        <li> Copy / Paste it to the target application.</li>
+        <li> <a id="protolink">Click here</a> to pass it through a protocol handler (  cozytoken:appName:token  ).</li>
+        <li> <a id="apilink" href="#">Click here</a> to pass it through a custom API (  window.registerCozyToken(appName, token)  ).</li>
+    </ol> </p>
+    <script>
+        function getToken(callback){
+            function tokenReceived(event) {
+                window.removeEventListener('message', tokenReceived);
+                callback && callback(null, {
+                    "appName": event.data.appName,
+                    "token": event.data.token
+                });
+                callback = null
+            }
+
+            if(!window.parent) return callback(new Error(
+                'no parent window. Open this app in your cozy'));
+
+            if(!window.parent.postMessage) return callback(new Error(
+                'This browser is not supported. ' +
+                'See http://caniuse.com/#search=postmessage'));
+
+            window.addEventListener('message', tokenReceived, false);
+            window.parent.postMessage({ action: 'getToken' }, '*');
+
+        }
+
+        var tokenContainer = document.getElementById('tokenContainer');
+        var protolink = document.getElementById('protolink');
+        var apilink = document.getElementById('apilink');
+
+        getToken(function(err, token){
+            if(err) return alert(err.stack)
+            tokenContainer.value = token.appName + ":" + token.token;
+            protolink.href="cozytoken:" + token.appName + ":" + token.token;
+            apilink.addEventListener('click', function(){
+                try{
+                    window.registerCozyToken(token.appName, token.token)
+                }catch(err){
+                    alert('There was an error when invocating window.registerCozyToken' + "\n" + err.stack)
+                }
+            });
+        });
+  </script>
+</body>
+</html>
